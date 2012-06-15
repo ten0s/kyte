@@ -127,7 +127,7 @@ perform_execute({db_get, K}, ReplyTo, PartsCtx, {KCodec, VCodec}) ->
 perform_execute({db_del, K}, ReplyTo, PartsCtx, {KCodec, _VCodec}) ->
 	Kenc = kyte_codec:encode(KCodec, K),
 	Partition = kyte_parts:choose_partition(PartsCtx, K, Kenc),
-	ReplyWith = gen_server:call(Partition, {db_remove, Kenc}, infinity),
+	ReplyWith = gen_server:call(Partition, {db_del, Kenc}, infinity),
 	_Ignored = gen_server:reply(ReplyTo, ReplyWith),
 	ok;
 

@@ -18,7 +18,7 @@
 
 	db_set/6,
 	db_get/5,
-	db_remove/5,
+	db_del/5,
 
 	db_clear/4,
 	db_count/4,
@@ -30,7 +30,7 @@ load_nif() ->
 	NifF = "kyte_nifs",
 	NifPath = filename:join(PrivD, NifF),
 	ok = erlang:load_nif(NifPath, 0),
-	
+
 	init_nif(),
 	ok.
 
@@ -56,7 +56,7 @@ destroy_thr_pool(_) -> {error, nif_not_loaded}.
 
 -spec db_set(
 			ReplyPid :: pid(), ReplyRef :: reference(),
-			PoolIdx :: integer(), DbIdx :: integer(), 
+			PoolIdx :: integer(), DbIdx :: integer(),
 			Key :: binary(), Value :: binary()
 		) -> ok | {error, any()}.
 db_set(_,_,_,_,_,_) ->
@@ -70,12 +70,12 @@ db_set(_,_,_,_,_,_) ->
 db_get(_,_,_,_,_) ->
 	{error, nif_not_loaded}.
 
--spec db_remove(
+-spec db_del(
 		ReplyPid :: pid(), ReplyRef :: reference(),
 		PoolIdx :: integer(), DbIdx :: integer(),
 		Key :: binary()
 	) -> ok | {error, any()}.
-db_remove(_,_,_,_,_) ->
+db_del(_,_,_,_,_) ->
 	{error, nif_not_loaded}.
 
 -spec db_clear(
@@ -99,7 +99,7 @@ db_size(_,_,_,_) -> {error, nif_not_loaded}.
 execute_sync(Fun) ->
 	Ref = make_ref(),
 	case Fun(Ref) of
-		ok ->	
+		ok ->
 			receive
 				{Ref, AsyncReply} ->
 					AsyncReply
