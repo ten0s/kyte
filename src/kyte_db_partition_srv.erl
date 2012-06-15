@@ -41,51 +41,51 @@ init({ID, Pool, DbSrv, DbPath}) ->
 	{ok, #state{
 		pool = Pool,
 		handle = {PoolIdx, DbIdx}
-	}}.
+}}.
 
-handle_call({db_set, K, V}, From, State = #state{ handle = {PoolIdx, DbIdx}, cookie = Cookie }) 
-when 
-	is_binary(K) 
+handle_call({db_set, K, V}, From, State = #state{handle = {PoolIdx, DbIdx}, cookie = Cookie})
+when
+	is_binary(K)
 	and is_binary(V)
 ->
 	kyte_nifs:db_set(self(), {Cookie, From}, PoolIdx, DbIdx, K, V),
 	{noreply, State};
 
-handle_call({db_get, K}, From, State = #state{ handle = {PoolIdx, DbIdx}, cookie = Cookie }) 
-when 
+handle_call({db_get, K}, From, State = #state{handle = {PoolIdx, DbIdx}, cookie = Cookie})
+when
 	is_binary(K)
 ->
 	kyte_nifs:db_get(self(), {Cookie, From}, PoolIdx, DbIdx, K),
 	{noreply, State};
 
-handle_call({db_remove, K}, From, State = #state{ handle = {PoolIdx, DbIdx}, cookie = Cookie }) 
-when 
+handle_call({db_remove, K}, From, State = #state{handle = {PoolIdx, DbIdx}, cookie = Cookie})
+when
 	is_binary(K)
 ->
 	kyte_nifs:db_remove(self(), {Cookie, From}, PoolIdx, DbIdx, K),
 	{noreply, State};
 
-handle_call(db_count, From, State = #state{ handle = {PoolIdx, DbIdx}, cookie = Cookie }) ->
+handle_call(db_count, From, State = #state{handle = {PoolIdx, DbIdx}, cookie = Cookie}) ->
 	kyte_nifs:db_count(self(), {Cookie, From}, PoolIdx, DbIdx),
 	{noreply, State};
 
-handle_call(db_size, From, State = #state{ handle = {PoolIdx, DbIdx}, cookie = Cookie }) ->
+handle_call(db_size, From, State = #state{handle = {PoolIdx, DbIdx}, cookie = Cookie}) ->
 	kyte_nifs:db_size(self(), {Cookie, From}, PoolIdx, DbIdx),
 	{noreply, State};
 
-handle_call(db_clear, From, State = #state{ handle = {PoolIdx, DbIdx}, cookie = Cookie }) ->
+handle_call(db_clear, From, State = #state{handle = {PoolIdx, DbIdx}, cookie = Cookie}) ->
 	kyte_nifs:db_clear(self(), {Cookie, From}, PoolIdx, DbIdx),
 	{noreply, State};
 
-handle_call(db_close, _From, State = #state{ handle = {PoolIdx, DbIdx} }) ->
+handle_call(db_close, _From, State = #state{handle = {PoolIdx, DbIdx}}) ->
 	_Ret = kyte_nifs:execute_sync(fun(Ref) ->
 		kyte_nifs:db_close(self(), Ref, PoolIdx, DbIdx)
 	end),
 	{stop, normal, ok, State # state{
 		handle = undefined
-	}};
+}};
 
-handle_call(db_close_rude, _From, State = #state{ handle = {PoolIdx, DbIdx} }) ->
+handle_call(db_close_rude, _From, State = #state{handle = {PoolIdx, DbIdx}}) ->
 	_Ret = kyte_nifs:execute_sync(fun(Ref) ->
 		kyte_nifs:db_close(self(), Ref, PoolIdx, DbIdx)
 	end),
@@ -97,7 +97,7 @@ handle_call(Request, _From, State = #state{}) ->
 handle_cast(Request, State = #state{}) ->
 	{stop, {bad_arg, Request}, State}.
 
-handle_info({ {Cookie, ReplyTo}, AsyncReply }, State = #state{ cookie = Cookie } ) ->
+handle_info({{Cookie, ReplyTo}, AsyncReply}, State = #state{cookie = Cookie}) ->
 	gen_server:reply(ReplyTo, AsyncReply),
 	{noreply, State};
 

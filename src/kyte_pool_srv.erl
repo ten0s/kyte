@@ -48,7 +48,7 @@ handle_call({affiliate_db, DbPartSrv}, _From, State = #state{
 		affiliated_dbs = dict:store(DbPartSrv, MonRef, Affiliated)
 	}};
 
-handle_call(shutdown, _From, State = #state{
+	handle_call(shutdown, _From, State = #state{
 	pool_id = PoolID,
 	affiliated_dbs = Dbs
 }) ->
@@ -64,9 +64,9 @@ handle_call(Request, _From, State = #state{}) ->
 handle_cast(Request, State = #state{}) ->
 	{stop, {bad_arg, Request}, State}.
 
-handle_info( {'DOWN', _MonRef, process, DbPartSrv, _Reason}, State = #state{
+handle_info({'DOWN', _MonRef, process, DbPartSrv, _Reason}, State = #state{
 	affiliated_dbs = Affiliated
-} ) ->
+}) ->
 	case dict:is_key(DbPartSrv, Affiliated) of
 		true ->
 			{noreply, State #state{
@@ -104,7 +104,7 @@ stop_affiliated_dbs(Dict) ->
 	lists:foreach(fun({DbPartSrv, MonRef}) ->
 		erlang:demonitor(MonRef),
 		kyte:db_partition_close_rude(DbPartSrv)
-	end, List ),
+	end, List),
 	ok.
 
 native_create_pool(PoolSize) ->

@@ -44,7 +44,7 @@ init({PartsCtx, Codecs, Operation, ReplyTo}) ->
 		reply_to = ReplyTo,
 		parts_ctx = PartsCtx,
 		codecs = Codecs
-	}}.
+}}.
 
 handle_call(Request, _From, State = #state{}) ->
 	{stop, {bad_arg, Request}, State}.
@@ -80,23 +80,23 @@ execute(ReqSrv) ->
 %%% Internal
 
 parts_fold(ReplyTo, PartsCtx, Fun, Acc0) ->
-	Result = kyte_parts:fold( PartsCtx, Fun, Acc0 ),
+	Result = kyte_parts:fold(PartsCtx, Fun, Acc0),
 	_Ignored = gen_server:reply(ReplyTo, Result),
 	ok.
 
 perform_execute(db_count, ReplyTo, PartsCtx, _Codecs) ->
-	parts_fold(ReplyTo, PartsCtx, 
+	parts_fold(ReplyTo, PartsCtx,
 		fun(Partition, {ok, Acc}) ->
 			{ok, Count} = gen_server:call(Partition, db_count, infinity),
 			{ok, Acc + Count}
-		end, {ok,0});
+		end, {ok, 0});
 
 perform_execute(db_size, ReplyTo, PartsCtx, _Codecs) ->
-	parts_fold(ReplyTo, PartsCtx, 
-		fun(Partition, {ok,Acc}) ->
+	parts_fold(ReplyTo, PartsCtx,
+		fun(Partition, {ok, Acc}) ->
 			{ok, Size} = gen_server:call(Partition, db_size, infinity),
 			{ok, Acc + Size}
-		end, {ok,0});
+		end, {ok, 0});
 
 perform_execute(db_clear, ReplyTo, PartsCtx, _Codecs) ->
 	parts_fold(ReplyTo, PartsCtx,

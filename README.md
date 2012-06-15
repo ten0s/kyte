@@ -4,8 +4,8 @@
 
 [Kyoto Cabinet](http://fallabs.com/kyotocabinet/) is an embeddable key-value storage.
 
-Kyte uses NIFs to bind to it. 
-Unpredictably long 'unmanaged' requests to the database are executed in the therad pool. 
+Kyte uses NIFs to bind to it.
+Unpredictably long 'unmanaged' requests to the database are executed in the therad pool.
 This lets not to bother the BEAM scheduler.
 
 ## Usage
@@ -49,7 +49,7 @@ Getting:
 Deleting:
 
 <pre>
-ok = kyte:db_delete(Db, Key).
+ok = kyte:db_del(Db, Key).
 </pre>
 
 ### Close the Database
@@ -75,7 +75,7 @@ Any of the following codecs can be used for keys or values:
 *	*etf* - Any Erlang terms are allowed. They are converted to ETF (with erlang:term_to_binary/1) the product binaries are saved.
 
 *	*sext* - Any Erlang terms are allowed. They are converted to SEXT ([sext:encode/1](https://github.com/uwiger/sext)).
-This is completely useless for the Values. 
+This is completely useless for the Values.
 Though it might be good for encoding the Keys: in future iteration through the collections is planned to be implemented.
 
 *	*rawz* - Same as *raw* but the binaries are zipped prior to be saved (with zlib:zip/1)
@@ -168,7 +168,7 @@ Clears the database.
 <pre>
 -type hash_fun_bin() :: fun( ( binary() ) -> integer() ).
 -type kyte_partitioning_type() ::
-	  single 
+	  single
 	| {post_hash, Count :: integer(), HashF :: hash_fun_bin() }.
 -record(kyte_db_args, {
 	file :: string(),

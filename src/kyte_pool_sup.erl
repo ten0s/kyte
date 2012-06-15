@@ -26,9 +26,6 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {simple_one_for_one, 5, 10}, [
+    {ok, {{simple_one_for_one, 5, 10}, [
     	{pool, {kyte_pool_srv, start_link, []}, temporary, 50000, worker, [kyte_pool_srv]}
-    ]} }.
-
-
-
+	]}}.
