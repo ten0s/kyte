@@ -30,7 +30,7 @@ DbArgs = #kyte_db_args{
 {ok, Db} = kyte:db_open(Pool, DbArgs). % Open a database. The database is linked to the creating process.
 </pre>
 
-### Storing, Getting and Deleting the Values
+### Storing, Getting, Listing, and Deleting the Values
 
 Storing:
 
@@ -44,6 +44,12 @@ Getting:
 
 <pre>
 {ok, Value} = kyte:db_get(Db, Key).
+</pre>
+
+Listing:
+
+<pre>
+{ok, [{K, V}|Values]} = kyte:db_list(Db).
 </pre>
 
 Deleting:
@@ -103,11 +109,13 @@ A: When the zip product is bigger than the source. E.g. short pieces of data: in
 
 Create and link to the calling process a pool of the given size.
 
+
 <pre>
 -spec pool_destroy( Pool :: pid() ) -> ok | {error, any()}.
 </pre>
 
 Destroy the pool. The pool will terminate with 'normal' reason. The affiliated databases will terminate with the 'rudely_closed' reason.
+
 
 <pre>
 -spec db_open( Pool :: pid(), kyte_db_args() ) -> {ok, DbSrv :: pid() }.
@@ -135,6 +143,13 @@ Store Key-Value pair in the database DbSrv.
 </pre>
 
 This function searches for a Key in the database.
+
+
+<pre>
+-spec db_list( DbSrv :: pid()) -> {ok, [{Key :: term(), Value :: term()}]} | {error, any()}.
+</pre>
+
+This function lists all Key-Value pairs in the database.
 
 
 <pre>
