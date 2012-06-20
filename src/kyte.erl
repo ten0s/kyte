@@ -6,7 +6,7 @@
 -export([start/0, stop/0]).
 -export([pool_create/1, pool_destroy/1]).
 -export([db_open/2, db_close/1, db_partition_close_rude/1]).
--export([db_set/3, db_del/2, db_get/2]).
+-export([db_set/3, db_del/2, db_get/2, db_list/1]).
 -export([db_clear/1, db_size/1, db_count/1]).
 
 -export([parts_post_hash_md5/1, parts_post_hash_sha/1]).
@@ -25,6 +25,7 @@ stop() -> application:stop(kyte).
 -spec db_set(DbSrv :: pid(), K :: term(), V :: term()) -> ok | {error, any()}.
 -spec db_get(DbSrv :: pid(), K :: term()) -> {ok, Value :: term()} | {error, any()}.
 -spec db_del(DbSrv :: pid(), K :: term()) -> ok | {error, any()}.
+-spec db_list(DbSrv :: pid()) -> {ok, integer()} | {error, any()}.
 
 -spec db_count(DbSrv :: pid()) -> {ok, integer()} | {error, any()}.
 -spec db_size(DbSrv :: pid()) -> {ok, integer()} | {error, any()}.
@@ -68,6 +69,9 @@ db_get(DbSrv, K) ->
 
 db_del(DbSrv, K) ->
 	gen_server:call(DbSrv, {db_del, K}, infinity).
+
+db_list(DbSrv) ->
+	gen_server:call(DbSrv, db_list, infinity).
 
 db_clear(DbSrv) ->
 	gen_server:call(DbSrv, db_clear, infinity).

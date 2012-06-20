@@ -19,6 +19,7 @@
 	db_set/6,
 	db_get/5,
 	db_del/5,
+	db_list/4,
 
 	db_clear/4,
 	db_count/4,
@@ -77,6 +78,12 @@ db_get(_,_,_,_,_) ->
 	) -> ok | {error, any()}.
 db_del(_,_,_,_,_) ->
 	{error, nif_not_loaded}.
+
+-spec db_list(
+		ReplyPid :: pid(), ReplyRef :: reference(),
+		PoolIdx :: integer(), DbIdx :: integer()
+	) -> {ok, integer()} | {error, any()}.
+db_list(_,_,_,_) -> {error, nif_not_loaded}.
 
 -spec db_clear(
 		ReplyPid :: pid(), ReplyRef :: reference(),

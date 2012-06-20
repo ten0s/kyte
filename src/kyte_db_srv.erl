@@ -50,7 +50,6 @@ init({Pool, _Args = #kyte_db_args{
 		codecs = {KCodec, VCodec}
 }}.
 
-
 handle_call(db_close, _From, State = #state{
 	parts_ctx = PartsCtx
 }) ->
@@ -74,6 +73,14 @@ handle_call(Op = {db_get, _K}, From, State = #state{
 	{noreply, State};
 
 handle_call(Op = {db_del, _K}, From, State = #state{
+	parts_ctx = PartsCtx,
+	reqs_sup = ReqsSup,
+	codecs = Codecs
+}) ->
+	perform_operation(ReqsSup, PartsCtx, Codecs, Op, From),
+	{noreply, State};
+
+handle_call(Op = db_list, From, State = #state{
 	parts_ctx = PartsCtx,
 	reqs_sup = ReqsSup,
 	codecs = Codecs

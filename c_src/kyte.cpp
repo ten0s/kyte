@@ -15,6 +15,7 @@
 #include "DbCloseTask.h"
 #include "DbSetTask.h"
 #include "DbGetTask.h"
+#include "DbListTask.h"
 #include "DbRemoveTask.h"
 #include "DbClearTask.h"
 #include "DbCountTask.h"
@@ -257,6 +258,26 @@ extern "C" {
 		return enif_make_atom(env, "ok");
 	}
 
+	static ERL_NIF_TERM kc_db_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+	{
+		assert( argc == 4 );
+		assert( enif_is_pid(env, argv[0]) == true );
+		// assert( enif_is_ref(env, argv[1]) == true );
+
+		int thrPoolIdx;
+		int dbIdx;
+		assert( enif_get_int(env, argv[2], &thrPoolIdx) == true );
+		assert( enif_get_int(env, argv[3], &dbIdx) == true );
+
+		CHECK_THR_POOL(thrPoolIdx);
+		STD_TASK_BEGIN(DbListTask);
+
+		task->SetDbIdx(dbIdx);
+
+		STD_TASK_END();
+		return enif_make_atom(env, "ok");
+	}
+
 	static ErlNifFunc nif_funcs[] =
 	{
 		{"init_nif", 0, kc_init_nif},
@@ -270,6 +291,7 @@ extern "C" {
 		{"db_set", 6, kc_db_set},
 		{"db_get", 5, kc_db_get},
 		{"db_del", 5, kc_db_del},
+		{"db_list", 4, kc_db_list},
 
 		{"db_clear", 4, kc_db_clear},
 		{"db_count", 4, kc_db_count},
@@ -280,6 +302,5 @@ extern "C" {
 				nif_funcs,
 				NULL, NULL,
 				NULL,NULL )
-
 
 }

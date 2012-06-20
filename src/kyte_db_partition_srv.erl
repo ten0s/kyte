@@ -65,6 +65,10 @@ when
 	kyte_nifs:db_del(self(), {Cookie, From}, PoolIdx, DbIdx, K),
 	{noreply, State};
 
+handle_call(db_list, From, State = #state{handle = {PoolIdx, DbIdx}, cookie = Cookie}) ->
+	kyte_nifs:db_list(self(), {Cookie, From}, PoolIdx, DbIdx),
+	{noreply, State};
+
 handle_call(db_count, From, State = #state{handle = {PoolIdx, DbIdx}, cookie = Cookie}) ->
 	kyte_nifs:db_count(self(), {Cookie, From}, PoolIdx, DbIdx),
 	{noreply, State};
