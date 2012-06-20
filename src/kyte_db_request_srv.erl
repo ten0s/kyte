@@ -24,6 +24,7 @@
 	{db_set, Key :: term(), Value :: term()} |
 	{db_get, Key :: term()} |
 	{db_del, Key :: term()} |
+	db_list |
 	db_size |
 	db_count |
 	db_clear.
@@ -44,7 +45,7 @@ init({PartsCtx, Codecs, Operation, ReplyTo}) ->
 		reply_to = ReplyTo,
 		parts_ctx = PartsCtx,
 		codecs = Codecs
-	}}.
+}}.
 
 handle_call(Request, _From, State = #state{}) ->
 	{stop, {bad_arg, Request}, State}.
@@ -80,23 +81,23 @@ execute(ReqSrv) ->
 %%% Internal
 
 parts_fold(ReplyTo, PartsCtx, Fun, Acc0) ->
-	Result = kyte_parts:fold( PartsCtx, Fun, Acc0 ),
+	Result = kyte_parts:fold(PartsCtx, Fun, Acc0),
 	_Ignored = gen_server:reply(ReplyTo, Result),
 	ok.
 
 perform_execute(db_count, ReplyTo, PartsCtx, _Codecs) ->
-	parts_fold(ReplyTo, PartsCtx, 
+	parts_fold(ReplyTo, PartsCtx,
 		fun(Partition, {ok, Acc}) ->
 			{ok, Count} = gen_server:call(Partition, db_count, infinity),
 			{ok, Acc + Count}
-		end, {ok,0});
+		end, {ok, 0});
 
 perform_execute(db_size, ReplyTo, PartsCtx, _Codecs) ->
-	parts_fold(ReplyTo, PartsCtx, 
-		fun(Partition, {ok,Acc}) ->
+	parts_fold(ReplyTo, PartsCtx,
+		fun(Partition, {ok, Acc}) ->
 			{ok, Size} = gen_server:call(Partition, db_size, infinity),
 			{ok, Acc + Size}
-		end, {ok,0});
+		end, {ok, 0});
 
 perform_execute(db_clear, ReplyTo, PartsCtx, _Codecs) ->
 	parts_fold(ReplyTo, PartsCtx,
@@ -127,9 +128,24 @@ perform_execute({db_get, K}, ReplyTo, PartsCtx, {KCodec, VCodec}) ->
 perform_execute({db_del, K}, ReplyTo, PartsCtx, {KCodec, _VCodec}) ->
 	Kenc = kyte_codec:encode(KCodec, K),
 	Partition = kyte_parts:choose_partition(PartsCtx, K, Kenc),
-	ReplyWith = gen_server:call(Partition, {db_remove, Kenc}, infinity),
+	ReplyWith = gen_server:call(Partition, {db_del, Kenc}, infinity),
 	_Ignored = gen_server:reply(ReplyTo, ReplyWith),
 	ok;
+
+perform_execute(db_list, ReplyTo, PartsCtx, {KCodec, VCodec}) ->
+	parts_fold(ReplyTo, PartsCtx,
+		fun(_, {error, Reason}) -> {error, Reason};
+		   (Partition, {ok, Acc}) ->
+				case gen_server:call(Partition, db_list, infinity) of
+					{ok, List} ->
+						DecodedList = lists:map(fun({Kenc, Venc}) ->
+							{kyte_codec:decode(KCodec, Kenc), kyte_codec:decode(VCodec, Venc)}
+						end, List),
+						{ok, DecodedList ++ Acc};
+					{error, Reason} ->
+						{error, Reason}
+				end
+		end, {ok, []});
 
 perform_execute(Op, _ReplyTo, _PartsCtx, _Codecs) ->
 	{error, bad_arg, Op}.

@@ -18,13 +18,13 @@
 %% ===================================================================
 
 start_link() ->
-    { ok, _Sup } = supervisor:start_link( {local, ?MODULE}, ?MODULE, {} ).
+    {ok, _Sup} = supervisor:start_link({local, ?MODULE}, ?MODULE, {}).
 
 %% ===================================================================
 %% Supervisor callbacks
 %% ===================================================================
 
 init({}) ->
-    {ok, { {simple_one_for_one, 5, 10}, [
-    	{db_sup, {kyte_db_srv, start_link, []}, temporary, infinity, supervisor, [kyte_db_sup]}
-    ]} }.
+    {ok, {{simple_one_for_one, 5, 10}, [
+    	{db, {kyte_db_srv, start_link, []}, temporary, 50000, worker, [kyte_db_srv]}
+	]}}.

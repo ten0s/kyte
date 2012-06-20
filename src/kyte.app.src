@@ -8,6 +8,6 @@
                   stdlib,
                   sext
                  ]},
-  {mod, { kyte_app, []}},
+  {mod, {kyte_app, []}},
   {env, []}
  ]}.

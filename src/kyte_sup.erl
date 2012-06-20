@@ -26,8 +26,7 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, [
+    {ok, {{one_for_one, 5, 10}, [
     	{pool_sup, {kyte_pool_sup, start_link, []}, permanent, infinity, supervisor, [kyte_pool_sup]},
     	{db_sup, {kyte_db_sup, start_link, []}, permanent, infinity, supervisor, [kyte_db_sup]}
-    ]} }.
-
+	]}}.

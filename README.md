@@ -4,8 +4,8 @@
 
 [Kyoto Cabinet](http://fallabs.com/kyotocabinet/) is an embeddable key-value storage.
 
-Kyte uses NIFs to bind to it. 
-Unpredictably long 'unmanaged' requests to the database are executed in the therad pool. 
+Kyte uses NIFs to bind to it.
+Unpredictably long 'unmanaged' requests to the database are executed in the therad pool.
 This lets not to bother the BEAM scheduler.
 
 ## Usage
@@ -30,7 +30,7 @@ DbArgs = #kyte_db_args{
 {ok, Db} = kyte:db_open(Pool, DbArgs). % Open a database. The database is linked to the creating process.
 </pre>
 
-### Storing, Getting and Deleting the Values
+### Storing, Getting, Listing, and Deleting the Values
 
 Storing:
 
@@ -46,10 +46,16 @@ Getting:
 {ok, Value} = kyte:db_get(Db, Key).
 </pre>
 
+Listing:
+
+<pre>
+{ok, [{K, V}|Values]} = kyte:db_list(Db).
+</pre>
+
 Deleting:
 
 <pre>
-ok = kyte:db_delete(Db, Key).
+ok = kyte:db_del(Db, Key).
 </pre>
 
 ### Close the Database
@@ -75,7 +81,7 @@ Any of the following codecs can be used for keys or values:
 *	*etf* - Any Erlang terms are allowed. They are converted to ETF (with erlang:term_to_binary/1) the product binaries are saved.
 
 *	*sext* - Any Erlang terms are allowed. They are converted to SEXT ([sext:encode/1](https://github.com/uwiger/sext)).
-This is completely useless for the Values. 
+This is completely useless for the Values.
 Though it might be good for encoding the Keys: in future iteration through the collections is planned to be implemented.
 
 *	*rawz* - Same as *raw* but the binaries are zipped prior to be saved (with zlib:zip/1)
@@ -103,11 +109,13 @@ A: When the zip product is bigger than the source. E.g. short pieces of data: in
 
 Create and link to the calling process a pool of the given size.
 
+
 <pre>
 -spec pool_destroy( Pool :: pid() ) -> ok | {error, any()}.
 </pre>
 
 Destroy the pool. The pool will terminate with 'normal' reason. The affiliated databases will terminate with the 'rudely_closed' reason.
+
 
 <pre>
 -spec db_open( Pool :: pid(), kyte_db_args() ) -> {ok, DbSrv :: pid() }.
@@ -135,6 +143,13 @@ Store Key-Value pair in the database DbSrv.
 </pre>
 
 This function searches for a Key in the database.
+
+
+<pre>
+-spec db_list( DbSrv :: pid()) -> {ok, [{Key :: term(), Value :: term()}]} | {error, any()}.
+</pre>
+
+This function lists all Key-Value pairs in the database.
 
 
 <pre>
@@ -168,7 +183,7 @@ Clears the database.
 <pre>
 -type hash_fun_bin() :: fun( ( binary() ) -> integer() ).
 -type kyte_partitioning_type() ::
-	  single 
+	  single
 	| {post_hash, Count :: integer(), HashF :: hash_fun_bin() }.
 -record(kyte_db_args, {
 	file :: string(),
