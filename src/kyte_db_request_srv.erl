@@ -142,6 +142,8 @@ perform_execute(db_list, ReplyTo, PartsCtx, {KCodec, VCodec}) ->
 							{kyte_codec:decode(KCodec, Kenc), kyte_codec:decode(VCodec, Venc)}
 						end, List),
 						{ok, DecodedList ++ Acc};
+					{error, "no record"} ->
+						{ok, Acc};
 					{error, Reason} ->
 						{error, Reason}
 				end
@@ -149,4 +151,3 @@ perform_execute(db_list, ReplyTo, PartsCtx, {KCodec, VCodec}) ->
 
 perform_execute(Op, _ReplyTo, _PartsCtx, _Codecs) ->
 	{error, bad_arg, Op}.
-
